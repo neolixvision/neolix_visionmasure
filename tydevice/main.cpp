@@ -8,7 +8,6 @@
 using namespace neolix;
 int main()
 {
-<<<<<<< HEAD
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD pos;
 	pos.X = 35;
@@ -105,7 +104,6 @@ int main(int argc, char** argv)
 		std::cout<<Length<<"mm*"<<Width<<"mm*"<<(1610-BoxDistance)<<"mm"<<std::endl;
 
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
-<<<<<<< HEAD
 		int key = cv::waitKey(30);
 		switch (key & 0xff)
 		{
@@ -116,9 +114,9 @@ int main(int argc, char** argv)
 			break;
 		}
 	}	
-=======
+
 		cvWait(exit_main);
 	}
->>>>>>> 355bdc58ecb3840d6bc77789b7987ed7b47abd91
+
 	return 0;
 }
