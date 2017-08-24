@@ -49,7 +49,7 @@ int main()
 			drawContours(colorDepth,vvp,0,Scalar(0,0,0),4);
 			imshow("test2",colorDepth);
 			//====================================//
-			if (NEOLIX_FALSE ==status) 
+			if (NEOLIX_FALSE ==status)
 			{
 				std::cout << "can't find contours" <<std::endl;
 				continue;
@@ -71,6 +71,7 @@ int main()
 		std::cout<<Length<<"mm*"<<Width<<"mm*"<<(1610-BoxDistance)<<"mm"<<std::endl;
 
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
+<<<<<<< HEAD
 		int key = cv::waitKey(30);
 		switch (key & 0xff)
 		{
@@ -81,5 +82,9 @@ int main()
 			break;
 		}
 	}	
+=======
+		cvWait(exit_main);
+	}
+>>>>>>> 355bdc58ecb3840d6bc77789b7987ed7b47abd91
 	return 0;
 }
