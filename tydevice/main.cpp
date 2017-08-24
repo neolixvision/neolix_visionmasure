@@ -6,11 +6,9 @@
 #include"imagepro\CalDepth.h"
 
 using namespace neolix;
-#ifdef WIN32
-#include<stdio.h>
-#include<windows.h>
-void changeDosColor()
+int main()
 {
+<<<<<<< HEAD
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD pos;
 	pos.X = 35;
@@ -71,9 +69,10 @@ int main(int argc, char** argv)
 		cv::Mat colorDepth =frame->render->Compute(frame->depth);
 		imshow("text",colorDepth);
 
+			//cv::Mat left_rgb = frame->leftRGB;
 			depth = frame->depth;
-	//		//======================获得轮廓信息================================
-	//
+			//======================获得轮廓信息================================
+			
 			colorRoi = depth(rects).clone();
 			colorDepth = frame->render->Compute(colorRoi);
 			point.clear();
@@ -87,26 +86,39 @@ int main(int argc, char** argv)
 			if (NEOLIX_FALSE ==status)
 			{
 				std::cout << "can't find contours" <<std::endl;
-				cvWait(exit_main);
 				continue;
 			}
-	//		//==================================================================
+			//==================================================================
 
-	//		//===================获取了轮廓->计算高度=========================
-	//
+			//===================获取了轮廓->计算高度=========================
+				
 			depthRoi = depth(rects);
 			unsigned short BoxDistance = calculateDepthFromDepthImagInRangeCountour(depthRoi,contours,confdence);
 			unsigned short PadDistance = calculateDepthFromDepthImagOutRangeCountour(depthRoi,contours,confdence);
 
-	//	//========================================================================
-	//
-	//	//获取真实的长宽q
-	//
-	//	//neolix::Getxy(PixLength,PixWidth,distance,Length,Width);
+		//========================================================================
+		
+		//获取真实的长宽q
+		
+		//neolix::Getxy(PixLength,PixWidth,distance,Length,Width);
 		Getxyz2(point,BoxDistance,Length,Width);
-		std::cout<<Length<<"cm*"<<Width<<"cm*"<<BoxDistance/10.0<<"cm"<<std::endl;
+		std::cout<<Length<<"mm*"<<Width<<"mm*"<<(1610-BoxDistance)<<"mm"<<std::endl;
+
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
+<<<<<<< HEAD
+		int key = cv::waitKey(30);
+		switch (key & 0xff)
+		{
+		case 'q':
+			exit_main = true;
+			break;
+		default:
+			break;
+		}
+	}	
+=======
 		cvWait(exit_main);
 	}
+>>>>>>> 355bdc58ecb3840d6bc77789b7987ed7b47abd91
 	return 0;
 }
