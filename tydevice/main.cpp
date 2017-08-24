@@ -39,8 +39,9 @@ void cvWait(bool &exit_main)
 }
 int main(int argc, char** argv)
 {
+//lelele123
 #ifdef WIN32
-	changeDosColor();
+	//changeDosColor();
 #endif
 
 	help();
