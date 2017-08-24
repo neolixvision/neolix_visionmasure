@@ -44,6 +44,7 @@ int main(int argc, char** argv)
 #endif
 
 	help();
+	///=================
 	//==============getgeatures================
 	//getfeatures();
 	//=========================================
@@ -83,7 +84,7 @@ int main(int argc, char** argv)
 			drawContours(colorDepth,vvp,0,Scalar(0,0,0),4);
 			imshow("test2",colorDepth);
 			//====================================//
-			if (NEOLIX_FALSE ==status) 
+			if (NEOLIX_FALSE ==status)
 			{
 				std::cout << "can't find contours" <<std::endl;
 				cvWait(exit_main);
@@ -106,6 +107,6 @@ int main(int argc, char** argv)
 		std::cout<<Length<<"cm*"<<Width<<"cm*"<<BoxDistance/10.0<<"cm"<<std::endl;
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
 		cvWait(exit_main);
-	}	
+	}
 	return 0;
 }
