@@ -6,7 +6,8 @@
 #include"imagepro\CalDepth.h"
 
 using namespace neolix;
-int main()
+#ifdef WIN32
+int changeDosColor()
 {
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD pos;
@@ -38,7 +39,7 @@ int main(int argc, char** argv)
 {
 //lelele123
 #ifdef WIN32
-	//changeDosColor();
+	changeDosColor();
 #endif
 
 	help();
@@ -71,7 +72,7 @@ int main(int argc, char** argv)
 			//cv::Mat left_rgb = frame->leftRGB;
 			depth = frame->depth;
 			//======================获得轮廓信息================================
-			
+
 			colorRoi = depth(rects).clone();
 			colorDepth = frame->render->Compute(colorRoi);
 			point.clear();
@@ -90,30 +91,21 @@ int main(int argc, char** argv)
 			//==================================================================
 
 			//===================获取了轮廓->计算高度=========================
-				
+
 			depthRoi = depth(rects);
 			unsigned short BoxDistance = calculateDepthFromDepthImagInRangeCountour(depthRoi,contours,confdence);
 			unsigned short PadDistance = calculateDepthFromDepthImagOutRangeCountour(depthRoi,contours,confdence);
 
 		//========================================================================
-		
+
 		//获取真实的长宽q
-		
+
 		//neolix::Getxy(PixLength,PixWidth,distance,Length,Width);
 		Getxyz2(point,BoxDistance,Length,Width);
 		std::cout<<Length<<"mm*"<<Width<<"mm*"<<(1610-BoxDistance)<<"mm"<<std::endl;
 
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
-		int key = cv::waitKey(30);
-		switch (key & 0xff)
-		{
-		case 'q':
-			exit_main = true;
-			break;
-		default:
-			break;
-		}
-	}	
+
 
 		cvWait(exit_main);
 	}
