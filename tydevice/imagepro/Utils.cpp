@@ -5,6 +5,7 @@
 #include <vector>
 #include "../imagepro/CalDepth.h"
 #include "../driverdecorate/base.h"
+#include "../driverdecorate/camdecorate.h"
 namespace neolix{
 
 void LaplasSharp(const cv::Mat &src, cv::Mat &dest)
@@ -213,13 +214,39 @@ void padDepthMask(const cv::Mat colorDepthImage, cv::Mat &mask)
 {
     cv::Mat hsv_img;
     cv::cvtColor(colorDepthImage, hsv_img, CV_RGB2HSV);
-    std::cout<<hsv_img<<std::endl;
-    int h_min=100, s_min=43, v_min=46;
-	int h_max=124, s_max=255, v_max=255;
+    int h_min=52, s_min=11, v_min=28;
+	int h_max=109, s_max=255, v_max=255;
 	cv::Scalar hsv_min(h_min, s_min, v_min);
 	cv::Scalar hsv_max(h_max, s_max, v_max);
 	mask = Mat::zeros(colorDepthImage.rows, colorDepthImage.cols, CV_8UC3);
 	inRange(hsv_img, hsv_min, hsv_max, mask);
+}
+
+void recordVideo(const string videopath)
+{
+    string savePath = videopath + "_opencv.avi";
+    Capturer cap;
+    cv::Mat RGBImage;
+	deviceDataBase *frame = cap.getFrame();
+	int32_t componetIDs = TY_COMPONENT_RGB_CAM_LEFT;
+	cap.open(componetIDs);
+	cap>>(frame);
+	RGBImage = frame->leftRGB;
+	cv::Size videoSzie = RGBImage.size();
+	double rate = 20.0;
+	cv::VideoWriter vw(savePath,CV_FOURCC('D','I', 'V', 'X'), rate, videoSzie);
+	while(true)
+    {
+        cap>>(frame);
+        RGBImage = frame->leftRGB;
+        vw<<RGBImage;
+        cv::imshow("video",RGBImage);
+        if(cv::waitKey(2) == 27) break;
+
+    }
+    vw.release();
+    vw.~VideoWriter();
+
 }
 
 }

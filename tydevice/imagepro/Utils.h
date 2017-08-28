@@ -25,7 +25,8 @@ unsigned short calculateDepthFromDepthImagOutRangeCountour(cv::Mat &depthIamge, 
 void getBigerRect(cv::Rect rect, cv::Point point);
 //校准相机到测量平台的距离
 bool adjustSystem( cv::Mat depthIamgeRoi,  cv::Mat mask, unsigned short &distance);
-
+//录制RGB视频,采集训练数据
+void recordVideo(const string videopath);
 void padDepthMask(const cv::Mat colorDepthImage, cv::Mat &mask);
 }
 #endif
