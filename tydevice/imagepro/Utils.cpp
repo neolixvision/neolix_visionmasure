@@ -207,4 +207,19 @@ bool adjustSystem( cv::Mat depthIamgeRoi,  cv::Mat mask, unsigned short &distanc
 	return true;
 }
 
+
+
+void padDepthMask(const cv::Mat colorDepthImage, cv::Mat &mask)
+{
+    cv::Mat hsv_img;
+    cv::cvtColor(colorDepthImage, hsv_img, CV_RGB2HSV);
+    std::cout<<hsv_img<<std::endl;
+    int h_min=100, s_min=43, v_min=46;
+	int h_max=124, s_max=255, v_max=255;
+	cv::Scalar hsv_min(h_min, s_min, v_min);
+	cv::Scalar hsv_max(h_max, s_max, v_max);
+	mask = Mat::zeros(colorDepthImage.rows, colorDepthImage.cols, CV_8UC3);
+	inRange(hsv_img, hsv_min, hsv_max, mask);
+}
+
 }
