@@ -86,6 +86,7 @@ int main(int argc, char** argv)
 			if (NEOLIX_FALSE ==status)
 			{
 				std::cout << "can't find contours" <<std::endl;
+				cvWait(exit_main);
 				continue;
 			}
 			//==================================================================
@@ -105,7 +106,6 @@ int main(int argc, char** argv)
 		std::cout<<Length<<"mm*"<<Width<<"mm*"<<(1610-BoxDistance)<<"mm"<<std::endl;
 
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
-
 
 		cvWait(exit_main);
 	}
