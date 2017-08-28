@@ -29,7 +29,7 @@ namespace neolix{
 		//打开设备
 		ASSERT_OK(TYOpenDevice(pDeviceBaseInfo[0].id, &hDevice));
 		//使能组件
-		
+
 		cb_data.index = 0;
 		cb_data.hDevice = hDevice;
 		cb_data.render = &render;
@@ -50,9 +50,9 @@ namespace neolix{
 
 		ASSERT_OK(TYEnableComponents(hDevice,componentIDs));
 		//设置摄像头参数
-		//qTYSetEnum(hDevice,componentIDs,enum_model,enum_model_value);
+		TYSetEnum(hDevice,componentIDs,enum_model,enum_model_value);
 		//TYSetEnum(hDevice,TY_COMPONENT_RGB_CAM_LEFT,TY_ENUM_IMAGE_MODE,TY_IMAGE_MODE_640x480);
-		TYSetEnum(hDevice,TY_COMPONENT_DEPTH_CAM,TY_ENUM_IMAGE_MODE,TY_IMAGE_MODE_640x480);
+		//TYSetEnum(hDevice,TY_COMPONENT_DEPTH_CAM,TY_ENUM_IMAGE_MODE,TY_IMAGE_MODE_640x480);
 
 		if (frameBuffer[0] != nullptr) delete[] frameBuffer[0];
 		if (frameBuffer[1] != nullptr) delete[] frameBuffer[1];
@@ -70,7 +70,7 @@ namespace neolix{
 		}
 		//=====start capture====
 		TYStartCapture(hDevice);
-		
+
 	}
 	void Capturer::setlaserPower(uint32_t value)
 	{
@@ -85,7 +85,7 @@ namespace neolix{
 
 	Capturer& Capturer::operator>>(deviceDataBase *framedate)
 	{
-		
+
 		int err = TYFetchFrame(hDevice, &frame, -1);
 		if( err != TY_STATUS_OK ) {
 			LOGD("... Drop one frame");
@@ -93,7 +93,7 @@ namespace neolix{
 			frameHandler(&frame, &cb_data);
 		}
 		return *this;
-	
+
 	}
 
 	void Capturer::frameHandler(TY_FRAME_DATA* frame, void* userdata)
@@ -127,7 +127,7 @@ namespace neolix{
 		if(pDeviceBaseInfo != nullptr) delete pDeviceBaseInfo;
 		if(frameBuffer[0] != nullptr) delete[] frameBuffer[0];
 		if(frameBuffer[1] != nullptr) delete[] frameBuffer[1];
-		
+
 	}
 
 	NEOLIX_STATUS Capturer::open(uint32_t componentIDs /* = TY_COMPONENT_DEPTH_CAM */,
