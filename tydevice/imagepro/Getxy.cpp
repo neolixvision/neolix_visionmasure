@@ -38,17 +38,14 @@ void Getxyz2(cv::vector<cv::Point2f> point,short distance,float &Length,float &W
 	cv::vector<cv::Point3f> point3f;
 	point3f.resize(3);
 	cv::vector<cv::Point2f>::iterator iter = point.begin();
-	while(iter!=point.end())
+	for(int j=0;j<=2;j++)
 	{
-		int i=3,j=0;
-		if(i--)
-		{
+		
 			//生成三维坐标
 			point3f[j].x = distance*(iter->x-u0)/fu;
 			point3f[j].y = distance*(iter->y-v0)/fv;
 			point3f[j].z = distance;
-			j++;
-		}
+
 		iter++;
 	}
 
