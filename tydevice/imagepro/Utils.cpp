@@ -181,7 +181,7 @@ bool adjustSystem( cv::Mat depthIamgeRoi,  cv::Mat mask, unsigned short &distanc
 
     short* ptr = shortImage.ptr < short>();
 
-	for (size_t index = 0; index < shortImage.size().area(); index++)
+	for (int index = 0; index < shortImage.size().area(); index++)
 	{
 		if (0 != ptr[index])
 		{
@@ -200,7 +200,7 @@ bool adjustSystem( cv::Mat depthIamgeRoi,  cv::Mat mask, unsigned short &distanc
         std::vector<short> histData;
         short* depth_ptr = shortImage.ptr<short>();
         uchar* mask_ptr  = mask.ptr<uchar>();
-        for(size_t index; index < shortImage.size().area(); index++) if(mask_ptr[index] != 0) histData.push_back(depth_ptr[index]);
+        for(int index =0; index < shortImage.size().area(); index++) if(mask_ptr[index] != 0) histData.push_back(depth_ptr[index]);
         caldepth depthHist(&histData);
         depthHist.calDepthHist();
         distance = depthHist.getdepth(confidence);

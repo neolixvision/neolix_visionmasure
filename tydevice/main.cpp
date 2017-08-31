@@ -14,7 +14,7 @@ using namespace neolix;
 
 #define DEBUG
 #ifdef WIN32
-int changeDosColor()
+void changeDosColor()
 {
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD pos;
@@ -23,6 +23,7 @@ int changeDosColor()
 	SetConsoleCursorPosition(handle,pos);
 	SetConsoleTextAttribute(handle,FOREGROUND_INTENSITY
 		| FOREGROUND_GREEN);
+
 }
 #endif
 void help()
@@ -32,7 +33,7 @@ void help()
 
 void cvWait(bool &exit_main)
 {
-    int key = cv::waitKey(10);
+    int key = cv::waitKey(100);
 		switch (key & 0xff)
 		{
 		case 'q':
@@ -59,19 +60,16 @@ int main(int argc, char** argv)
 
 	std::vector<cv::Rect> objects;
 	cv::CascadeClassifier cascade;
-	if( !cascade.load(""))
+	if( !cascade.load("cascade.xml"))
     {
         std::cout<<"can not  load xml file"<<std::endl;
         exit(-1);
     }
 
-
-
-
 	//===========打开摄像设备=========
 	Capturer capture;
 	neolix::deviceDataBase *frame = capture.getFrame();
-	capture.open();
+	capture.open(TY_COMPONENT_DEPTH_CAM | TY_COMPONENT_RGB_CAM);
 
     bool exit_main = false;
     cv::Mat RGBImage;
@@ -81,7 +79,8 @@ int main(int argc, char** argv)
     {
         capture>>frame;
         RGBImage = frame->leftRGB;
-      //  cv::imshow("RGBVideo",RGBImage);
+        cv::imshow("RGBVideo",RGBImage);
+		cvWait(exit_main);
         cv::cvtColor(RGBImage, gray,CV_RGB2GRAY);
         cascade.detectMultiScale(gray,objects,1.1,4,0|cv::CASCADE_SCALE_IMAGE, cv::Size(100, 100));
         std::cout<<"检查到 "<<objects.size()<<"个目标"<<std::endl;
@@ -93,11 +92,6 @@ int main(int argc, char** argv)
         cvWait(exit_main);
 
     }
-
-
-
-
-
 
 	#else
 	Capturer a;
