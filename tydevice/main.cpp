@@ -1,11 +1,18 @@
 #include <iostream>
-#include "driverdecorate/camdecorate.h"
 #include <opencv2/opencv.hpp>
+#include <vector>
+
+
+#include "driverdecorate/camdecorate.h"
 #include"driverdecorate/getfeatures.hpp"
 #include "imagepro\Utils.h"
 #include"imagepro\CalDepth.h"
 
+
+
 using namespace neolix;
+
+#define DEBUG
 #ifdef WIN32
 int changeDosColor()
 {
@@ -46,6 +53,53 @@ int main(int argc, char** argv)
 	//==============getgeatures================
 	//getfeatures();
 	//=========================================
+	#ifdef DEBUG
+
+	//===========加载xml文件以及初始化========
+
+	std::vector<cv::Rect> objects;
+	cv::CascadeClassifier cascade;
+	if( !cascade.load(""))
+    {
+        std::cout<<"can not  load xml file"<<std::endl;
+        exit(-1);
+    }
+
+
+
+
+	//===========打开摄像设备=========
+	Capturer capture;
+	neolix::deviceDataBase *frame = capture.getFrame();
+	capture.open();
+
+    bool exit_main = false;
+    cv::Mat RGBImage;
+    cv::Mat gray;
+    cv::namedWindow("RGBVideo");
+    while(! exit_main)
+    {
+        capture>>frame;
+        RGBImage = frame->leftRGB;
+      //  cv::imshow("RGBVideo",RGBImage);
+        cv::cvtColor(RGBImage, gray,CV_RGB2GRAY);
+        cascade.detectMultiScale(gray,objects,1.1,4,0|cv::CASCADE_SCALE_IMAGE, cv::Size(100, 100));
+        std::cout<<"检查到 "<<objects.size()<<"个目标"<<std::endl;
+        for(size_t i = 0; i < objects.size(); i++)
+        {
+            cv::rectangle(RGBImage, objects[i], cv::Scalar(255,0,255));
+        }
+        cv::imshow("RGBVideo",RGBImage);
+        cvWait(exit_main);
+
+    }
+
+
+
+
+
+
+	#else
 	Capturer a;
 	deviceDataBase *frame = a.getFrame();
 
@@ -109,6 +163,6 @@ int main(int argc, char** argv)
 
 		cvWait(exit_main);
 	}
-
+    #endif // DEBUG
 	return 0;
 }
