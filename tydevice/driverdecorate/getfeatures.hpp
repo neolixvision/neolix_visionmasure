@@ -1,5 +1,11 @@
+#ifndef _GETFEATURES_HPP_
+#define _GETFEATURES_HPP_
+
+
 #include "../common/common.hpp"
 
+namespace neolix
+{
 static char     buffer[1024*1024];
 static int32_t  n;
 
@@ -212,7 +218,7 @@ int getfeatures()
 	std::string compNames;
 	ASSERT_OK(TYGetComponentIDs(handle, &compIDs));
 	dumpAllComponentFeatures(handle, compIDs);
-	DUMP_FEATURE(handle, 0x00100000, TY_STRUCT_CAM_INTRINSIC ); 
+	DUMP_FEATURE(handle, 0x00100000, TY_STRUCT_CAM_INTRINSIC );
 
 
 	/*TY_CAMERA_INTRINSIC* p = (TY_CAMERA_INTRINSIC*)buffer;
@@ -240,3 +246,5 @@ int getfeatures()
 	TYDeinitLib();
 	return 0;
 }
+}
+#endif // GETFEATURES_HPP_

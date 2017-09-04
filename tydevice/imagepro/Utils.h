@@ -4,6 +4,8 @@
 #include<opencv2/core/core.hpp>
 #include<fstream>
 #include<iostream>
+#include<vector>
+
 #include "../driverdecorate/base.h"
 
 using namespace std;
@@ -11,6 +13,13 @@ using namespace  cv;
 
 namespace neolix{
 
+template <typename T1, typename T2>
+struct index_value
+{
+    T1 index;
+    T2 value;
+
+};
 void LaplasSharp(const cv::Mat &src, cv::Mat &dest);
 void GammaConver(const cv::Mat &src, cv::Mat &dest, double gamma);
 void ExtractObject(const cv::Mat &depthImage, cv::Mat &BinaryImage);
@@ -28,5 +37,23 @@ bool adjustSystem( cv::Mat depthIamgeRoi,  cv::Mat mask, unsigned short &distanc
 //录制RGB视频,采集训练数据
 void recordVideo(const string videopath);
 void padDepthMask(const cv::Mat colorDepthImage, cv::Mat &mask);
+//测量摄像机到测量平台的距离，将测量平台分成9个区域
+/*
+输入：PadDepthImage，测量平台的深度图
+输出: 1、distance,摄像头带测量平台的距离，
+      2、centerPoints,测量平台上各个区域的中心上
+*/
+void distancesFromCamToPad(std::vector<short> &distances,std::vector<index_value<int, cv::Point2i>> &centerPoints, cv::Mat PadDepthImage);
+
+
+//计算最佳的摄像头到测量平台平面的距离
+/*
+输出：distancesFromCamToPad函数获得的数据，和一个点
+输出：最佳的距离
+*/
+float calDisCam2Pad(std::vector<short> &distances, std::vector<index_value<int,cv::Point2i>> &centerPoints, cv::Point2i point);
+
+//获得轮廓的中心
+void calCoutousCenter(cv::vector<cv::Point> &contour, cv::Point2f &center);
 }
 #endif

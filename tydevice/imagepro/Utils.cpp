@@ -6,6 +6,8 @@
 #include "../imagepro/CalDepth.h"
 #include "../driverdecorate/base.h"
 #include "../driverdecorate/camdecorate.h"
+
+#include<cmath>
 namespace neolix{
 
 void LaplasSharp(const cv::Mat &src, cv::Mat &dest)
@@ -209,7 +211,7 @@ bool adjustSystem( cv::Mat depthIamgeRoi,  cv::Mat mask, unsigned short &distanc
 }
 
 
-
+//通过检查蓝色，判断测量平台的平面，获取掩码
 void padDepthMask(const cv::Mat colorDepthImage, cv::Mat &mask)
 {
     cv::Mat hsv_img;
@@ -249,4 +251,122 @@ void recordVideo(const string videopath)
 
 }
 
+void distancesFromCamToPad(std::vector<short> &distances,std::vector<index_value<int, cv::Point2i>> &centerPoints,  cv::Mat PadDepthImage)
+{
+    //将行拆分成三段，
+    if(PadDepthImage.rows <3 || PadDepthImage.cols < 3) throw "the padDepthImage cols and rows must more than 3!";
+    cv::Mat shortImage;
+    if(PadDepthImage.type() != CV_16SC1)
+    {
+        PadDepthImage.convertTo(shortImage,CV_16SC1);
+    }else
+    {
+        shortImage = PadDepthImage;
+
+    }
+
+    /*
+    *   0  1  2  3  4  5  6  7  8
+    * 0 *  *  *  *  *  *  *  *  * rs0
+    * 1 *  @  *  *  @  *  *  @  *
+    * 2 *  *  *  *  *  *  *  *  * re0
+    * 3 *  *  *  *  *  *  *  *  * cs1
+    * 4 *  @  *  *  @  *  *  @  *
+    * 5 *  *  *  *  *  *  *  *  * re1
+    * 6 *  *  *  *  *  *  *  *  * rs2
+    * 7 *  @  *  *  @  *  *  @  *
+    * 8 *  *  *  *  *  *  *  *  * re2
+    *  cs0   ce0,cs1  ce1,cs2  ce2
+    *
+    *  rs0 = 0; re0 = (rows+1)/3-1; rs1 = re0+1;re1 = (rows+1)*2/3 -1;rs2 = re1+1; re2 = rows;
+    *  cs0 = 0; ce0 = (cols+1)/3-1; cs1 = ce0+1;ce1 = (cols+1)*2/3 -1;cs2 = ce1+1; ce2 = cols;
+    */
+    std::vector<int> rowPoints;
+    std::vector<int> colPoints;
+    std::vector<short> depthPoints;
+    double confidence;
+
+    int rectWidth,rectHeight;
+    int index = 0;
+    cv::Mat roi;
+    rowPoints.resize(6);
+    colPoints.resize(6);
+    distances.clear();
+    centerPoints.clear();
+
+    rowPoints[0] = 0;
+    rowPoints[5] = PadDepthImage.rows;
+    rowPoints[1] = (PadDepthImage.rows+1)/3-1;
+    rowPoints[2] = rowPoints[1]+1;
+    rowPoints[3] = (PadDepthImage.rows+2)*2/3-1;
+    rowPoints[4] = rowPoints[3]+1;
+
+    colPoints[0] = 0;
+    colPoints[5] = PadDepthImage.cols;
+    colPoints[1] = (PadDepthImage.cols+1)/3-1;
+    colPoints[2] = colPoints[1]+1;
+    colPoints[3] = (PadDepthImage.cols+1)*2/3-1;
+    colPoints[4] = colPoints[3]+1;
+
+    for(int colPoint = 0; colPoint < 6; colPoint+=2)
+    {
+        for(int rowPoint = 0; rowPoint < 6; rowPoint+=2)
+        {
+            rectWidth  = colPoints[colPoint+1] - colPoints[colPoint]+1;
+            rectHeight = rowPoints[rowPoint+1] - rowPoints[rowPoint]+1;
+            cv::Rect box(colPoints[colPoint],rowPoints[rowPoint],
+                         rectWidth,rectHeight);
+            //获得区域的中心
+            cv::Point2i center(colPoints[colPoint]+ rectWidth/2, rowPoints[rowPoint] + rectHeight/2);
+            index_value<int, cv::Point2i> iv;
+            iv.index = index++;
+            iv.value = center;
+            centerPoints.push_back(iv);
+            //计算摄像头到该区域的距离
+            roi = shortImage(box);
+            depthPoints.clear();
+            short* ptr = roi.ptr < short>();
+            for (int index = 0; index < roi.size().area(); index++)
+            {
+                depthPoints.push_back(ptr[index]);
+            }
+            caldepth depthHist(&depthPoints);
+            depthHist.calDepthHist();
+            unsigned short dis = depthHist.getdepth(confidence);
+            distances.push_back(dis);
+        }
+    }
+}
+
+//计算两点之间的距离
+float distancebet2Point2i(cv::Point2i point1, cv::Point2i point2)
+{
+    float diffx   = static_cast<float>(point1.x - point2.x);
+    float diffy   = static_cast<float>(point1.y - point2.y);
+    float diffpow = std::pow(diffx,2)+std::pow(diffy,2);
+    return sqrt(diffpow);
+
+}
+
+float calDisCam2Pad(std::vector<float> &distances, std::vector<index_value<int,cv::Point2i>> &centerPoints, cv::Point2i point)
+{
+    float mindis = distancebet2Point2i(centerPoints[0].value,point);
+    int minindex = centerPoints[0].index;
+    for(size_t i = 1; i < centerPoints.size(); i++)
+    {
+        if(mindis > distancebet2Point2i(centerPoints[i].value,point))
+        {
+            mindis = distancebet2Point2i(centerPoints[i].value,point);
+            minindex = centerPoints[i].index;
+        }
+    }
+    return distances[mindis];
+}
+
+//通过寻找轮廓的最下外接圆，获取轮廓的中心
+void calCoutousCenter(cv::vector<cv::Point> &contour, cv::Point2f &center)
+{
+    float radius = 0.0;
+    cv::minEnclosingCircle(contour,center,radius);
+}
 }

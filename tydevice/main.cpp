@@ -4,15 +4,17 @@
 
 
 #include "driverdecorate/camdecorate.h"
-#include"driverdecorate/getfeatures.hpp"
+//#include"driverdecorate/getfeatures.hpp"
 #include "imagepro\Utils.h"
 #include"imagepro\CalDepth.h"
+#include"ts/ts.h"
 
 
 
 using namespace neolix;
 
 //#define DEBUG
+#define TEST_CAL_PAD_DIS
 #ifdef WIN32
 void changeDosColor()
 {
@@ -31,18 +33,6 @@ void help()
 	std::cout<<"重要提示：\n\n\n\t\t体积测量系统初始测量时，需要对系统进行校验，根据\n\t\t系统启动提示安装步骤操作并保证测量平台没有任何物\n\t\t体.\n";
 }
 
-void cvWait(bool &exit_main)
-{
-    int key = cv::waitKey(100);
-		switch (key & 0xff)
-		{
-		case 'q':
-			exit_main = true;
-			break;
-		default:
-			break;
-		}
-}
 int main(int argc, char** argv)
 {
 //lelele123
@@ -54,6 +44,10 @@ int main(int argc, char** argv)
 	//==============getgeatures================
 	//getfeatures();
 	//=========================================
+	#ifdef TEST_CAL_PAD_DIS
+
+	#endif // TEST_CAL_PAD_DIS
+    test_cal_pad_dis();
 	#ifdef DEBUG
 
 	//===========加载xml文件以及初始化========
@@ -92,7 +86,9 @@ int main(int argc, char** argv)
         cvWait(exit_main);
 
     }
-	#else
+	#endif // DEBUG
+
+	#ifdef RUNMAIN
 	Capturer a;
 	deviceDataBase *frame = a.getFrame();
 
@@ -155,7 +151,8 @@ int main(int argc, char** argv)
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
 
 		cvWait(exit_main);
+
 	}
-    #endif // DEBUG
+    #endif // RUNMAIN
 	return 0;
 }
