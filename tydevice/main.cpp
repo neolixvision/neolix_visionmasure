@@ -14,7 +14,8 @@
 using namespace neolix;
 
 //#define DEBUG
-#define TEST_CAL_PAD_DIS
+//#define TEST_CAL_PAD_DIS
+#define RUNMAIN
 #ifdef WIN32
 void changeDosColor()
 {
@@ -103,8 +104,31 @@ int main(int argc, char** argv)
 	std::vector<short> data;
 	cv::vector<cv::Point> contours;
 	cv::vector<cv::Point2f> point;
+	float paddis;
 	double confdence;
 	float PixLength,PixWidth,Length,Width;
+    std::vector<float> distances;
+    std::vector<index_value<int, cv::Point2i>> centers;
+    cv::Point2f objCenter;
+    distances.push_back(AREA1);
+    distances.push_back(AREA2);
+    distances.push_back(AREA3);
+    distances.push_back(AREA4);
+    distances.push_back(AREA5);
+    distances.push_back(AREA6);
+    distances.push_back(AREA7);
+    distances.push_back(AREA8);
+    distances.push_back(AREA9);
+    centers.push_back(index_value<int,cv::Point2i> (1,cv::Point2i(CENTER1)));
+    centers.push_back(index_value<int,cv::Point2i> (2,cv::Point2i(CENTER2)));
+    centers.push_back(index_value<int,cv::Point2i> (3,cv::Point2i(CENTER3)));
+    centers.push_back(index_value<int,cv::Point2i> (4,cv::Point2i(CENTER4)));
+    centers.push_back(index_value<int,cv::Point2i> (5,cv::Point2i(CENTER5)));
+    centers.push_back(index_value<int,cv::Point2i> (6,cv::Point2i(CENTER6)));
+    centers.push_back(index_value<int,cv::Point2i> (7,cv::Point2i(CENTER7)));
+    centers.push_back(index_value<int,cv::Point2i> (8,cv::Point2i(CENTER8)));
+    centers.push_back(index_value<int,cv::Point2i> (9,cv::Point2i(CENTER9)));
+
 	while (!exit_main)
 	{
 		a>>(frame);
@@ -137,8 +161,10 @@ int main(int argc, char** argv)
 			//===================获取了轮廓->计算高度=========================
 
 			depthRoi = depth(rects);
+			calCoutousCenter(contours,objCenter);
 			unsigned short BoxDistance = calculateDepthFromDepthImagInRangeCountour(depthRoi,contours,confdence);
-			unsigned short PadDistance = calculateDepthFromDepthImagOutRangeCountour(depthRoi,contours,confdence);
+			paddis = calDisCam2Pad(distances,centers,objCenter);
+			//unsigned short PadDistance = calculateDepthFromDepthImagOutRangeCountour(depthRoi,contours,confdence);//目前弃用，这个函数猪要是在ROi中寻找蓝色区域统计距离
 
 		//========================================================================
 
@@ -146,7 +172,7 @@ int main(int argc, char** argv)
 
 		//neolix::Getxy(PixLength,PixWidth,distance,Length,Width);
 		Getxyz2(point,BoxDistance,Length,Width);
-		std::cout<<Length<<"mm*"<<Width<<"mm*"<<(1610-BoxDistance)<<"mm"<<std::endl;
+		std::cout<<Length<<"mm*"<<Width<<"mm*"<<(paddis-BoxDistance)<<"mm"<<std::endl;
 
 		cv::setMouseCallback("depth",onMouse,&colorDepth);
 

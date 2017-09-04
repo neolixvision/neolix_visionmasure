@@ -12,6 +12,28 @@ namespace neolix{
 #define  NEICAN_FV  529.86016845703125f
 #define  NEICAN_U0  327.42376708984375f
 #define  NEICAN_V0  259.32891845703125f
+//==========测量平台到摄像头九个区域的距离=====
+#define  AREA1 1621.363636
+#define  AREA2 1617.519481
+#define  AREA3 1608.272727
+#define  AREA4 1621.545455
+#define  AREA5 1617.987013
+#define  AREA6 1608.623377
+#define  AREA7 1621.428571
+#define  AREA8 1617.987013
+#define  AREA9 1609
+
+//==========测量平台到摄像头九个区域的中心=====
+
+#define  CENTER1 53,38
+#define  CENTER2 56,115
+#define  CENTER3 56,192
+#define  CENTER4 168,38
+#define  CENTER5 168,115
+#define  CENTER6 168,192
+#define  CENTER7 279,38
+#define  CENTER8 279,115
+#define  CENTER9 279,192
 
 //=========系统校准参数=========
 #define MEADSURING_TABLE_STDDEV 0.1f//
@@ -23,7 +45,7 @@ namespace neolix{
 		NEOLIX_FALSE,
 
 	}NEOLIX_STATUS_LIST;
-	
+
 	typedef int32_t NEOLIX_STATUS;
 #include <stdio.h>
   //  #define LOGD0(_str, ...) do{printf(_str , ## __VA_ARGS__); printf("\n");fflush(stdout);} while(0)
@@ -112,9 +134,9 @@ namespace neolix{
 	}
 
 
-	
 
-	 
+
+
 
 }
 #endif

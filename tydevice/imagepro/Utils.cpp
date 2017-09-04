@@ -295,14 +295,14 @@ void distancesFromCamToPad(std::vector<short> &distances,std::vector<index_value
     centerPoints.clear();
 
     rowPoints[0] = 0;
-    rowPoints[5] = PadDepthImage.rows;
+    rowPoints[5] = PadDepthImage.rows-1;
     rowPoints[1] = (PadDepthImage.rows+1)/3-1;
     rowPoints[2] = rowPoints[1]+1;
     rowPoints[3] = (PadDepthImage.rows+2)*2/3-1;
     rowPoints[4] = rowPoints[3]+1;
 
     colPoints[0] = 0;
-    colPoints[5] = PadDepthImage.cols;
+    colPoints[5] = PadDepthImage.cols-1;
     colPoints[1] = (PadDepthImage.cols+1)/3-1;
     colPoints[2] = colPoints[1]+1;
     colPoints[3] = (PadDepthImage.cols+1)*2/3-1;
@@ -339,7 +339,7 @@ void distancesFromCamToPad(std::vector<short> &distances,std::vector<index_value
 }
 
 //计算两点之间的距离
-float distancebet2Point2i(cv::Point2i point1, cv::Point2i point2)
+float distancebet2Point2i(cv::Point2i point1, cv::Point2f point2)
 {
     float diffx   = static_cast<float>(point1.x - point2.x);
     float diffy   = static_cast<float>(point1.y - point2.y);
@@ -348,7 +348,7 @@ float distancebet2Point2i(cv::Point2i point1, cv::Point2i point2)
 
 }
 
-float calDisCam2Pad(std::vector<float> &distances, std::vector<index_value<int,cv::Point2i>> &centerPoints, cv::Point2i point)
+float calDisCam2Pad(std::vector<float> &distances, std::vector<index_value<int,cv::Point2i>> &centerPoints, cv::Point2f point)
 {
     float mindis = distancebet2Point2i(centerPoints[0].value,point);
     int minindex = centerPoints[0].index;

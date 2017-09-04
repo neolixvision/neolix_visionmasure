@@ -1,5 +1,5 @@
-#ifndef  _UTILS__H__
-#define  _UTILS__H__
+#ifndef  _NEOLIX_UTILS__H__
+#define  _NEOLIX_UTILS__H__
 
 #include<opencv2/core/core.hpp>
 #include<fstream>
@@ -18,6 +18,12 @@ struct index_value
 {
     T1 index;
     T2 value;
+    index_value(T1 idx, T2 val)
+    {
+        index = idx;
+        value = val;
+    }
+    index_value(){}
 
 };
 void LaplasSharp(const cv::Mat &src, cv::Mat &dest);
@@ -44,14 +50,12 @@ void padDepthMask(const cv::Mat colorDepthImage, cv::Mat &mask);
       2、centerPoints,测量平台上各个区域的中心上
 */
 void distancesFromCamToPad(std::vector<short> &distances,std::vector<index_value<int, cv::Point2i>> &centerPoints, cv::Mat PadDepthImage);
-
-
 //计算最佳的摄像头到测量平台平面的距离
 /*
 输出：distancesFromCamToPad函数获得的数据，和一个点
 输出：最佳的距离
 */
-float calDisCam2Pad(std::vector<short> &distances, std::vector<index_value<int,cv::Point2i>> &centerPoints, cv::Point2i point);
+float calDisCam2Pad(std::vector<float> &distances, std::vector<index_value<int,cv::Point2i>> &centerPoints, cv::Point2f point);
 
 //获得轮廓的中心
 void calCoutousCenter(cv::vector<cv::Point> &contour, cv::Point2f &center);

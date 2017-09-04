@@ -12,6 +12,6 @@
 
 //测试测量摄像头到测量平台的距离
 void test_cal_pad_dis();
-
+void cvWait(bool &exit_main);
 
 #endif // _TS__H_
