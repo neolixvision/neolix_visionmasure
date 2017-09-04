@@ -12,7 +12,7 @@
 
 using namespace neolix;
 
-#define DEBUG
+//#define DEBUG
 #ifdef WIN32
 void changeDosColor()
 {
@@ -92,7 +92,6 @@ int main(int argc, char** argv)
         cvWait(exit_main);
 
     }
-
 	#else
 	Capturer a;
 	deviceDataBase *frame = a.getFrame();
