@@ -360,7 +360,7 @@ float calDisCam2Pad(std::vector<float> &distances, std::vector<index_value<int,c
             minindex = centerPoints[i].index;
         }
     }
-    return distances[mindis];
+    return distances[minindex];
 }
 
 //通过寻找轮廓的最下外接圆，获取轮廓的中心

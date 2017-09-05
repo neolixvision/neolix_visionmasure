@@ -8,13 +8,12 @@
 #include "imagepro\Utils.h"
 #include"imagepro\CalDepth.h"
 #include"ts/ts.h"
+#include"driverdecorate/degug.h"
 
 
 
 using namespace neolix;
 
-//#define DEBUG
-//#define TEST_CAL_PAD_DIS
 #define RUNMAIN
 #ifdef WIN32
 void changeDosColor()
@@ -46,47 +45,11 @@ int main(int argc, char** argv)
 	//getfeatures();
 	//=========================================
 	#ifdef TEST_CAL_PAD_DIS
-
-	#endif // TEST_CAL_PAD_DIS
     test_cal_pad_dis();
-	#ifdef DEBUG
+	#endif // TEST_CAL_PAD_DIS
 
-	//===========加载xml文件以及初始化========
-
-	std::vector<cv::Rect> objects;
-	cv::CascadeClassifier cascade;
-	if( !cascade.load("cascade.xml"))
-    {
-        std::cout<<"can not  load xml file"<<std::endl;
-        exit(-1);
-    }
-
-	//===========打开摄像设备=========
-	Capturer capture;
-	neolix::deviceDataBase *frame = capture.getFrame();
-	capture.open(TY_COMPONENT_DEPTH_CAM | TY_COMPONENT_RGB_CAM);
-
-    bool exit_main = false;
-    cv::Mat RGBImage;
-    cv::Mat gray;
-    cv::namedWindow("RGBVideo");
-    while(! exit_main)
-    {
-        capture>>frame;
-        RGBImage = frame->leftRGB;
-        cv::imshow("RGBVideo",RGBImage);
-		cvWait(exit_main);
-        cv::cvtColor(RGBImage, gray,CV_RGB2GRAY);
-        cascade.detectMultiScale(gray,objects,1.1,4,0|cv::CASCADE_SCALE_IMAGE, cv::Size(100, 100));
-        std::cout<<"检查到 "<<objects.size()<<"个目标"<<std::endl;
-        for(size_t i = 0; i < objects.size(); i++)
-        {
-            cv::rectangle(RGBImage, objects[i], cv::Scalar(255,0,255));
-        }
-        cv::imshow("RGBVideo",RGBImage);
-        cvWait(exit_main);
-
-    }
+	#ifdef TEST_RECOFINITION_OBJECT
+	test_recognition_object();
 	#endif // DEBUG
 
 	#ifdef RUNMAIN
