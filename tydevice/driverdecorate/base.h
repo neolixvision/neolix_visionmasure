@@ -13,15 +13,24 @@ namespace neolix{
 #define  NEICAN_U0  327.42376708984375f
 #define  NEICAN_V0  259.32891845703125f
 //==========测量平台到摄像头九个区域的距离=====
-#define  AREA1 1621.363636f
-#define  AREA2 1617.519481f
-#define  AREA3 1608.272727f
-#define  AREA4 1621.545455f
-#define  AREA5 1617.987013f
-#define  AREA6 1608.623377f
-#define  AREA7 1621.428571f
-#define  AREA8 1617.987013f
-#define  AREA9 1609.0f
+//#define  AREA1 1621.363636f
+//#define  AREA2 1617.519481f
+//#define  AREA3 1608.272727f
+//#define  AREA4 1621.545455f
+//#define  AREA5 1617.987013f
+//#define  AREA6 1608.623377f
+//#define  AREA7 1621.428571f
+//#define  AREA8 1617.987013f
+//#define  AREA9 1609.0f
+#define  AREA1 1603.0f
+#define  AREA2 1601.0f
+#define  AREA3 1596.0f
+#define  AREA4 1620.0f
+#define  AREA5 1616.0f
+#define  AREA6 1611.0f
+#define  AREA7 1635.0f
+#define  AREA8 1634.0f
+#define  AREA9 1623.0f
 
 //==========测量平台到摄像头九个区域的中心=====
 
