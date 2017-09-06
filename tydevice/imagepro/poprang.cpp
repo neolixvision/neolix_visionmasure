@@ -1,5 +1,6 @@
-ï»¿//è½®å»“æå–
+//ÂÖÀªÌáÈ¡
 #include <opencv2\opencv.hpp>
+#include<cmath>
 using namespace cv;
 using namespace std;
 #include "../driverdecorate/base.h"
@@ -8,7 +9,7 @@ namespace neolix{
 void SizeGet(cv::Mat &srcImg,cv::Mat &dstImg)
 {
 	cv::Mat hsv_img;
-	cvtColor(srcImg, hsv_img, CV_BGR2HSV);  //è½¬æ¢åˆ°HSVé¢œè‰²ç©ºé—´
+	cvtColor(srcImg, hsv_img, CV_BGR2HSV);  //×ª»»µ½HSVÑÕÉ«¿Õ¼ä
 	int h_min=0, s_min=43, v_min=46;
 	int h_max=10, s_max=255, v_max=255;
 	cv::Scalar hsv_min(h_min, s_min, v_min);
@@ -18,7 +19,7 @@ void SizeGet(cv::Mat &srcImg,cv::Mat &dstImg)
 }
 void undistort(cv::Mat &srcImg ,cv::Mat &srcimg)
 	{
-			//è¯»å–å½©è‰²å›¾éœ€è¦æ ‡å®šç¨‹åº,è¯»å–å‚æ•°ç•¸å˜çŸ«æ­£
+			//¶ÁÈ¡²ÊÉ«Í¼ĞèÒª±ê¶¨³ÌĞò,¶ÁÈ¡²ÎÊı»û±ä½ÃÕı
 	cv::FileStorage fs2("intrinsics.yml", cv::FileStorage::READ);
 	cv::Mat D1 = cv::Mat(3, 4, CV_32FC1);
 	cv::Mat M2=cv::Mat::zeros(1,4,CV_32FC1);
@@ -26,13 +27,13 @@ void undistort(cv::Mat &srcImg ,cv::Mat &srcimg)
 	fs2["M1"] >> M1;
 	fs2["D1"] >> D1;
 
-	//=================é±¼çœ¼é•œå¤´æ ‡å®šå‚æ•°=======================
+	///=================ÓãÑÛ¾µÍ·±ê¶¨²ÎÊı=======================
 	M2.at<double>(0,0) =  D1.at<double>(0,0);
 	M2.at<double>(0,1) =  D1.at<double>(0,1);
 	M2.at<double>(0,2) =  D1.at<double>(1,0);
 	M2.at<double>(0,3) =  D1.at<double>(1,1);
-	//=================æ™®é€šé•œå¤´æ ‡å®šå‚æ•°=======================
-	/*M2.at<float>(0,0) =  D1.at<double>(0,0);
+	///=================ÆÕÍ¨¾µÍ·±ê¶¨²ÎÊı=======================
+	/**M2.at<float>(0,0) =  D1.at<double>(0,0);
 	M2.at<float>(0,1) =  D1.at<double>(0,1);
 	M2.at<float>(0,2) =  D1.at<double>(0,2);
 	M2.at<float>(0,3) =  D1.at<double>(0,3);*/
@@ -44,60 +45,140 @@ void undistort(cv::Mat &srcImg ,cv::Mat &srcimg)
 float CompareArea(const float Circumscribed_rectangleArea , const float ContoursArea)
 {
 	float Area_difference = Circumscribed_rectangleArea - ContoursArea ;
-	return Area_difference/ContoursArea ; 
+	return Area_difference/ContoursArea ;
 }
 
-cv::RotatedRect GetnewPoint(cv::RotatedRect &rect ,cv::RotatedRect &rec )
+cv::RotatedRect adjustRectSize(cv::RotatedRect &rect ,cv::RotatedRect &rec )
 {
-		cv::Point2f Center;
-		Center.x = rect.center.x;
-		Center.y = rect.center.y;
-		float height = rect.size.height;
-		float width = rect.size.width;
-		Size2f size(height-2 ,width-2);
-		float angle = rect.angle;
-		
-		cv::RotatedRect recv(Center , size , angle);
-		
+	cv::Point2f Center;
+	Center.x = rect.center.x;
+	Center.y = rect.center.y;
+	float height = rect.size.height;
+	float width = rect.size.width;
+	Size2f size(height-2 ,width-2);
+	float angle = rect.angle;
+
+	cv::RotatedRect recv(Center , size , angle);
+
 	return rec = recv;
 }
 
+
+/**
+* author: PengCheng, pengcheng@neolix.cn
+* function: ´ÓÎ±²ÊÉ«ÖĞÌáÈ¡Ä¿±êÎïÌå(ÖØ¹¹ÒüÀÖ´úÂë£©
+*/
+inline void segmentationImage(const cv::Mat srcImg, cv::Mat &destImage)
+{
+    //=====ÀûÓÃÉî¶ÈÍ¼×ª³ÉµØ·½Î±²ÊÉ«Í¼·Ö¸î³öÎïÌå=========
+    cv::Mat srcimg = srcImg.clone();
+    SizeGet(srcimg, destImage);
+
+    //====ĞÎÌ¬Ñ§´¦Àí·Ö¸î³ö¿´Í¼Ïñ£¬ÏÈÅò»¯£¬ÔÚ¸¯Ê´£¬²¹È«Ä¿±êÇøÓòµÄÒ»Ğ©È±Ïİ====
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3));
+    cv::morphologyEx(destImage, destImage, cv::MORPH_CLOSE, element);
+
+}
+/**
+* author: Pengcheng, pengcheng@neolix.cn
+* function: »ñÈ¡Ä¿±êÇøÓòµÄ×î´óÂÖÀª(ÖØ¹¹´úÂë£©
+**/
+
+inline NEOLIX_STATUS_LIST  getMaxContours(cv::Mat binaryImage, int &maxContourId)
+{
+    cv::vector<cv::vector<cv::Point>> contours;
+     cv::vector<cv::Vec4i> hierarchy;
+    cv::findContours(binaryImage,hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE,cv::Point(0, 0));
+
+    if(0 == contours.size()) return NEOLIX_FALSE;
+    ///²éÕÒ×î´óÂÖÀª
+    double maxContourArea = 0.0;
+    int    maxAreaIndex   = 0;
+    for(size_t i =0; i < contours.size(); i++)
+    {
+        if(maxContourArea < cv::contourArea(contours[i]))
+        {
+            maxAreaIndex = i;
+            maxContourArea = cv::contourArea(contours[i]);
+        }
+    }
+    maxContourId = maxAreaIndex;
+    return NEOLIX_SUCCESS;
+
+
+}
+/**
+* author: PengCheng ,pengcheng@neolix.cn
+* funtion: Ñ°ÕÒÂÖÀªµÄ×îĞ¡Íâ½Ó¾ØĞÎ(ÖØ¹¹´úÂë)
+*/
+inline void findMinRectangle(cv::vector<cv::Point>(* maxcontour), cv::RotatedRect &rectangle)
+{
+    ///Ñ°ÕÒ×îĞ¡Íâ½Ó¾ØĞÎ
+    rectangle = cv::minAreaRect(*maxcontour);
+    ///µ÷ÕûÍâ½Ó¾ØÕóµÄ´óĞ¡£¬Ä¿µÄÊÇÎªÁËÌá¸ßÏäÌå³¤¿íµÄ¾«¶È
+    adjustRectSize(rectangle , rectangle);
+
+}
+/**
+* author: PengCheng, pengcheng@neolix.cn
+* funtion:¼ÆËãÂÖÀªÍâ½Ó¾ØĞÎµÄ³¤¿í
+*/
+inline void calPixelDistance(cv::RotatedRect rect, float &xLegnth, float &yLength)
+{
+    cv::Point2f vertex[4];
+    rect.points(vertex);
+    float diffx  = 0.0f;
+    float diffy  = 0.0f;
+    float length_t = 0.0f;
+    float temp[2] = {0};
+    for(unsigned int i = 0; i < 2; i++)
+    {
+        diffx = vertex[i].x - vertex[i+1].x;
+        diffy = vertex[i].y - vertex[i+1].y;
+        length_t = std::pow(diffx,2)+std::pow(diffy,2);
+        temp[i] = std::sqrt(length_t);
+    }
+    xLegnth = temp[0];
+    yLength = temp[1];
+}
+
+
 NEOLIX_STATUS_LIST  PopRang(cv::Mat &srcImg,cv::vector<cv::Point>& contour,float &PixLength,float &PixWidth,cv::vector<cv::Point2f> &point)
 {
-	
-	
 
 
-	//=================è·å–æ·±åº¦å›¾è½®å»“åˆ†ç¦»å›¾=======================
+
+
+	//=================»ñÈ¡Éî¶ÈÍ¼ÂÖÀª·ÖÀëÍ¼=======================
 	cv::Mat dstimg;
 	cv::Mat srcimg = srcImg.clone();
 	SizeGet(srcimg , dstimg);
-	//=================è·å–æ·±åº¦å›¾è½®å»“åˆ†ç¦»å›¾=======================
-	
+	//=================»ñÈ¡Éî¶ÈÍ¼ÂÖÀª·ÖÀëÍ¼=======================
 
 
-	//===================å½¢æ€å­¦è¿ç®—ï¼Œå¼¥è¡¥è½®å»“ç¼ºé™·=================
+
+	//===================ĞÎÌ¬Ñ§ÔËËã£¬ÃÖ²¹ÂÖÀªÈ±Ïİ=================
 	cv::Mat dst2;
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));   	
-	morphologyEx(dstimg,dst2, cv::MORPH_CLOSE, element);  	
-	//===================å½¢æ€å­¦è¿ç®—ï¼Œå¼¥è¡¥è½®å»“ç¼ºé™·=================
-	
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	morphologyEx(dstimg,dst2, cv::MORPH_CLOSE, element);
+	//===================ĞÎÌ¬Ñ§ÔËËã£¬ÃÖ²¹ÂÖÀªÈ±Ïİ=================
 
 
-	//===================æŸ¥æ‰¾è½®å»“å¹¶å¯»æ‰¾æœ€å¤§è½®å»“===================
+
+	//===================²éÕÒÂÖÀª²¢Ñ°ÕÒ×î´óÂÖÀª===================
 	cv::vector<cv::vector<cv::Point> > contours;
     cv:: vector<cv::Vec4i> hierarchy;
 	findContours( dst2, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0) );
-	
-	//æ˜¯å¦æŸ¥æ‰¾åˆ°è½®å»“åˆ¤æ–­
+
+	//ÊÇ·ñ²éÕÒµ½ÂÖÀªÅĞ¶Ï
 	if (0 == contours.size())return NEOLIX_FALSE;
-	
+
 	float a[4]={0};
 	double  Max_sizeArea=0;
 	int  Max_sizeId=0;
     for( size_t i = 0; i < contours.size(); i++ )
      {
-		
+
 		 if(Max_sizeArea<contourArea(contours[i]))
 		 {
 			 Max_sizeId=i;
@@ -105,38 +186,38 @@ NEOLIX_STATUS_LIST  PopRang(cv::Mat &srcImg,cv::vector<cv::Point>& contour,float
 		 }
      }
 	drawContours(dst2,contours,Max_sizeId,Scalar(255,255,255),5);
-	//===================æŸ¥æ‰¾è½®å»“å¹¶å¯»æ‰¾æœ€å¤§è½®å»“===================
-	
-	//===================æŸ¥æ‰¾æœ€å°å¤–åŒ…çŸ©å½¢è½®å»“=====================
-	cv::RotatedRect rect=minAreaRect(contours[Max_sizeId]);  
-       cv::Point2f P[4];  //rectçš„å››ä¸ªç‚¹ä¼ ç»™P
+	//===================²éÕÒÂÖÀª²¢Ñ°ÕÒ×î´óÂÖÀª===================
+
+	//===================²éÕÒ×îĞ¡Íâ°ü¾ØĞÎÂÖÀª=====================
+	cv::RotatedRect rect=minAreaRect(contours[Max_sizeId]);
+       cv::Point2f P[4];  //rectµÄËÄ¸öµã´«¸øP
        rect.points(P);
-	   //æ±‚è§£æ¯æ¡ç›´çº¿çš„é•¿åº¦,a[0]æ˜¯å®½ï¼Œa[1]æ˜¯é«˜
-        for(int j=0;j<=1;j++)  
-        {  
-           // line(dst2,P[j],P[(j+1)%4],cv::Scalar(255,255,255),2);  
+	   //Çó½âÃ¿ÌõÖ±ÏßµÄ³¤¶È,a[0]ÊÇ¿í£¬a[1]ÊÇ¸ß
+        for(int j=0;j<=1;j++)
+        {
+           // line(dst2,P[j],P[(j+1)%4],cv::Scalar(255,255,255),2);
 				  	float x1 = P[j].x-P[j+1].x;
 						float y1 =P[j].y-P[j+1].y;
 						float temp = x1*x1 + y1*y1;
 					//if(j<2)
-				  a[j] = sqrt(temp);	
-        }  
+				  a[j] = sqrt(temp);
+        }
 		PixWidth=a[0];
 		PixLength=a[1];
-		
-	//===================æŸ¥æ‰¾æœ€å°å¤–åŒ…çŸ©å½¢è½®å»“=====================
-	
-	
-	//==================é‡å®šä½ç¼©æ”¾çŸ©å½¢åŒºåŸŸ===================
-		
+
+	//===================²éÕÒ×îĞ¡Íâ°ü¾ØĞÎÂÖÀª=====================
+
+
+	//==================ÖØ¶¨Î»Ëõ·Å¾ØĞÎÇøÓò===================
+
 		cv::RotatedRect rec;
-		GetnewPoint(rect , rec);
-		
-		//rectçš„å››ä¸ªç‚¹ä¼ ç»™P
-		cv::Point2f P2[4];  
+		adjustRectSize(rect , rec);
+
+		//rectµÄËÄ¸öµã´«¸øP
+		cv::Point2f P2[4];
 		rec.points(P2);
-		
-		//å­˜å‚¨å…³é”®è§’ç‚¹ä½ç½®ä¿¡æ¯ï¼Œä¸ºgetxyz2å‚æ•°é¢„ç•™æ¥å£
+
+		//´æ´¢¹Ø¼ü½ÇµãÎ»ÖÃĞÅÏ¢£¬Îªgetxyz2²ÎÊıÔ¤Áô½Ó¿Ú
 		cv::Point2f p;
 		for(size_t i=0;i<=2;i++)
 		{
@@ -148,7 +229,7 @@ NEOLIX_STATUS_LIST  PopRang(cv::Mat &srcImg,cv::vector<cv::Point>& contour,float
 
 
 
-	//=======================è°ƒè¯•è½®å»“ä¿¡æ¯===========================
+	//=======================µ÷ÊÔÂÖÀªĞÅÏ¢===========================
 	/*
 	cv::Point i;
 	cv::vector<cv::Point>::iterator iter=contours[g].begin();
@@ -157,17 +238,17 @@ NEOLIX_STATUS_LIST  PopRang(cv::Mat &srcImg,cv::vector<cv::Point>& contour,float
 			std::cout <<*iter<<std::endl;
 			iter++;
 	}*/
-	//=======================è°ƒè¯•è½®å»“ä¿¡æ¯===========================
+	//=======================µ÷ÊÔÂÖÀªĞÅÏ¢===========================
 
-	//std::cout << "çŸ©å½¢ä¿®æ­£çš„é¢ç§¯ç­‰äº:"<<a[0]*a[1]<<std::endl;
-	//std::cout << "æœ€å°åŒ…å›´é¢ç§¯ï¼š"<<cv::contourArea(contours[Max_sizeId]) <<std::endl;
-		
+	//std::cout << "¾ØĞÎĞŞÕıµÄÃæ»ıµÈÓÚ:"<<a[0]*a[1]<<std::endl;
+	//std::cout << "×îĞ¡°üÎ§Ãæ»ı£º"<<cv::contourArea(contours[Max_sizeId]) <<std::endl;
+
 	float judge = CompareArea(a[0]*a[1],cv::contourArea(contours[Max_sizeId]));
-	
+
 	if(judge > 0.2)
 	{
 		std::cout << "---------------------" <<std::endl;
-		std::cout << "    æœ‰é®æŒ¡ç‰©ï¼Œæ‹¿å¼€   " <<std::endl;
+		std::cout << "    ÓĞÕÚµ²Îï£¬ÄÃ¿ª   " <<std::endl;
 		std::cout << "---------------------" <<std::endl;
 	return NEOLIX_FALSE;
 	}
