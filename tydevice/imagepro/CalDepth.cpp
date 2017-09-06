@@ -129,7 +129,7 @@ unsigned short caldepth::getdepth(double &confidence)
 		}
 		//用的区域中45%的深度,当检测带大于45%的深度点就计算深度
 		confidence = usedPiex/(double)totalPiex ;
-		if(confidence > 0.1500)break;
+		if(confidence > 0.1000)break;
 	}
 
 	depth =static_cast<float>(totalDepth/usedPiex);

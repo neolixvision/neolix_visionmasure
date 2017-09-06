@@ -11,7 +11,7 @@ void SizeGet(cv::Mat &srcImg,cv::Mat &dstImg)
 	cv::Mat hsv_img;
 	cvtColor(srcImg, hsv_img, CV_BGR2HSV);  //转换到HSV颜色空间
 	int h_min=0, s_min=43, v_min=46;
-	int h_max=10, s_max=255, v_max=255;
+	int h_max=20, s_max=255, v_max=255;
 	cv::Scalar hsv_min(h_min, s_min, v_min);
 	cv::Scalar hsv_max(h_max, s_max, v_max);
 	dstImg = Mat::zeros(srcImg.rows, srcImg.cols, CV_8UC3);
@@ -245,7 +245,7 @@ NEOLIX_STATUS_LIST  PopRang(cv::Mat &srcImg,cv::vector<cv::Point>& contour,float
 
 	float judge = CompareArea(a[0]*a[1],cv::contourArea(contours[Max_sizeId]));
 
-	if(judge > 0.2)
+	if(judge > 0.45)
 	{
 		std::cout << "---------------------" <<std::endl;
 		std::cout << "    有遮挡物，拿开   " <<std::endl;
